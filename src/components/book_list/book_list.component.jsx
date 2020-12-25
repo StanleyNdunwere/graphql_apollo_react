@@ -1,15 +1,36 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+
+const BOOK = "book"
+const AUTHOR = "author"
 
 export default function BookList(props) {
+  const [allAuthors, setAllAuthors] = useState(() => {
+    //fetch all authors
+  })
+  const [allBooks, setAllBooks] = useState(() => {
+    // fetch all books
+  })
+  const [showOverlay, setShowOverlay] = useState(true);
+  const [detailsToShow, setDetailsToShow] = useState({ type: BOOK, details: {} })
+  const [newBook, addNewBook] = useState({});
+  const [newAuthor, addNewAuthor] = useState({});
 
-  const { state, setState } = useState({});
 
+  const createNewBook = (title, genre, authorId) => {
+
+  }
+  const createNewAuthor = (name, age) => {
+
+  }
 
   return (
     <div style={{
       fontFamily: "nunito, Arial",
     }}>
-      <OverlayComponent />
+      {showOverlay &&
+        <OverlayComponent
+          detailsToShow={detailsToShow}
+          setOverlayVisible={setShowOverlay} />}
       <h1 style={{
         fontSize: "3rem",
         fontColor: "#bbb"
@@ -44,10 +65,33 @@ export default function BookList(props) {
               padding: "0",
               margin: "0"
             }}>
-              <BookListItem />
-              <BookListItem />
-              <BookListItem />
-              <BookListItem />
+              <BookListItem
+                setDetailsToShow={setDetailsToShow}
+                setOverlayVisible={setShowOverlay}
+                author="Charles Dickens"
+                title="Oliver twist"
+                authorId="444"
+                bookId="something"
+              />
+
+              <BookListItem
+                setDetailsToShow={setDetailsToShow}
+                setOverlayVisible={setShowOverlay}
+                author="Charles Dickens"
+                title="Oliver twist"
+                authorId="444"
+                bookId="something"
+              />
+
+              <BookListItem
+                setDetailsToShow={setDetailsToShow}
+                setOverlayVisible={setShowOverlay}
+                author="Charles Dickens"
+                title="Oliver twist"
+                authorId="444"
+                bookId="something"
+              />
+
             </ul>
           </div>
         </div>
@@ -74,7 +118,8 @@ export default function BookList(props) {
                 padding: "4px",
                 borderRadius: "4px",
                 margin: "0.3rem",
-              }} />
+              }}
+              />
               <span style={{ fontWeight: "bold" }}>Author</span>
               <input type="text" style={{
                 padding: "4px",
@@ -141,6 +186,19 @@ export default function BookList(props) {
 
 
 function BookListItem(props) {
+
+  const handleClickAuthor = (bookId) => {
+    //fetch author details
+    props.setDetailsToShow({ type: AUTHOR, details: {} });
+    props.setOverlayVisible(true);
+  }
+
+  const handleClickBook = (bookId) => {
+    //set book details 
+    props.setDetailsToShow({ type: BOOK, details: {} });
+    props.setOverlayVisible(true)
+  }
+
   return (
     <li style={{
       margin: "1rem",
@@ -151,23 +209,31 @@ function BookListItem(props) {
     }}>
       <p>
         <span style={{ fontWeight: "bolder", fontSize: "1.2rem" }}>Title: </span>
-        <span style={{
-          padding: "0.2rem 2.5rem",
-          background: "green",
-          color: "whitesmoke",
-          borderRadius: "1rem",
-          boxShadow: "0 0 15px #00000050",
-        }}> The first title</span>
+        <span
+          onClick={() => {
+            handleClickBook(props.bookId);
+          }}
+          style={{
+            padding: "0.2rem 2.5rem",
+            background: "green",
+            color: "whitesmoke",
+            borderRadius: "1rem",
+            boxShadow: "0 0 15px #00000050",
+          }}> {props.title}</span>
       </p>
       <p>
         <span style={{ fontWeight: "bolder", fontSize: "1.2rem" }}>Author: </span>
-        <span style={{
-          padding: "0.2rem 2.5rem",
-          background: "green",
-          color: "whitesmoke",
-          borderRadius: "1rem",
-          boxShadow: "0 0 15px #00000050",
-        }}> The first Author</span>
+        <span
+          onClick={() => {
+            handleClickAuthor(props.authorId);
+          }}
+          style={{
+            padding: "0.2rem 2.5rem",
+            background: "green",
+            color: "whitesmoke",
+            borderRadius: "1rem",
+            boxShadow: "0 0 15px #00000050",
+          }}> {props.author}</span>
       </p>
     </li>
   )
@@ -201,12 +267,12 @@ function OverlayComponent(props) {
       }}>
         <div style={{
         }}>
-          <ShowBookDetails />
-          {/* <ShowAuthorDetails /> */}
+          {props.detailsToShow === BOOK ?
+            (<ShowBookDetails />) : (<ShowAuthorDetails />)}
           <div style={{
             width: "100%", textAlign: "center"
           }}>
-            <p
+            <p onClick={() => { props.setOverlayVisible(false) }}
               style={{
                 width: "30%",
                 background: "green",
