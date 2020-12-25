@@ -17,17 +17,16 @@ export default function BookList(props) {
   const [newBook, addNewBook] = useState({});
   const [newAuthor, addNewAuthor] = useState({});
 
-  const [createAuthor] = useMutation(STORE_NEW_AUTHOR_MUTATION,
-    { variables: { name: newAuthor.authorName, age: newAuthor.authorAge } })
-  const [createBook] = useMutation(STORE_NEW_BOOK_MUTATION,
-    { variables: { name: newBook.bookName, genre: newBook.bookGenre, authorId: newBook.authorId } })
+  const [createAuthor] = useMutation(STORE_NEW_AUTHOR_MUTATION)
+  const [createBook, { loading, error, data }] = useMutation(STORE_NEW_BOOK_MUTATION)
 
   const createNewBook = () => {
-    createBook()
+    createBook({ variables: { name: newBook.bookName, genre: newBook.bookGenre, authorId: newBook.authorId } })
     console.log(newBook);
+    console.log(error);
   }
   const createNewAuthor = () => {
-    createAuthor();
+    createAuthor({ variables: { name: newAuthor.authorName, age: newAuthor.authorAge } });
     console.log(newAuthor);
   }
 
@@ -157,7 +156,7 @@ export default function BookList(props) {
               textAlign: "left"
             }}
             >
-              Books on Our Shelves
+              <br />
             </p>
             <h3>Add New Author</h3>
             <div style={{ textAlign: "left" }}>
@@ -175,7 +174,7 @@ export default function BookList(props) {
                 borderRadius: "4px",
                 margin: "0.3rem",
               }}
-                onChange={(e) => { addNewAuthor({ ...newAuthor, authorAge: e.target.value }) }}
+                onChange={(e) => { addNewAuthor({ ...newAuthor, authorAge: parseInt(e.target.value) }) }}
 
               />
             </div>
