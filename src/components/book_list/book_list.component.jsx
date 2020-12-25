@@ -9,7 +9,7 @@ export default function BookList(props) {
 
   const { data: bookData, loading: bookLoading } = useQuery(FETCH_ALL_BOOKS_QUERY);
   const { data: authorData, loading: authorLoading } = useQuery(FETCH_ALL_AUTHORS_QUERY)
-
+  if (!authorLoading) console.log(authorLoading, "aithro data")
   const [details, setDetails] = useState({})
 
   const [showOverlay, setShowOverlay] = useState(false);
@@ -72,6 +72,7 @@ export default function BookList(props) {
 
               {(!bookLoading) ? bookData.books.map((book) => {
                 return <BookListItem
+                  key={book.author.id + book.id}
                   setDetailsToShow={setDetailsToShow}
                   setOverlayVisible={setShowOverlay}
                   setDetails={setDetails}
@@ -119,10 +120,9 @@ export default function BookList(props) {
                   width: "160px",
                   border: "2px solid black"
                 }}>
-                <option value="idafdad">Author1</option>
-                <option value="iddfada">Author2</option>
-                <option value="dfadfad">Author3</option>
-                <option value="fadfda">Author4</option>
+                {(!authorLoading) ? authorData.authors.map((author) => {
+                  return <option key={author.id} value={author.id}>{author.name}</option>
+                }) : <span></span>}
               </select>
 
             </div>
@@ -193,14 +193,14 @@ function BookListItem(props) {
 
 
   const handleClickAuthor = (bookId) => {
-    props.setDetails({ ...authorData });
+    if (!authorLoading) props.setDetails({ ...authorData });
     props.setDetailsToShow(AUTHOR);
     props.setOverlayVisible(true);
   }
 
   const handleClickBook = (bookId) => {
     //set book details 
-    props.setDetails({ ...bookData })
+    if (!bookLoading) props.setDetails({ ...bookData })
     props.setDetailsToShow(BOOK);
     props.setOverlayVisible(true)
   }
@@ -275,7 +275,8 @@ function OverlayComponent(props) {
         <div style={{
         }}>
           {props.detailsToShow === BOOK ?
-            (<ShowBookDetails displayData={props.displayData} />) : (<ShowAuthorDetails displayData={props.displayData} />)}
+            (<ShowBookDetails key={Math.random() * 2000} displayData={props.displayData} />) :
+            (<ShowAuthorDetails key={Math.random() * 2000} displayData={props.displayData} />)}
           <div style={{
             width: "100%", textAlign: "center"
           }}>
