@@ -1,17 +1,21 @@
+import { useQuery } from '@apollo/client'
 import React, { useEffect, useState } from 'react'
+import { FETCH_ALL_BOOKS_QUERY, FETCH_ALL_AUTHORS_QUERY, FETCH_AN_AUTHOR_QUERY, FETCH_A_BOOK_QUERY } from '../../schemas/schema'
 
 const BOOK = "book"
 const AUTHOR = "author"
 
 export default function BookList(props) {
-  const [allAuthors, setAllAuthors] = useState(() => {
-    //fetch all authors
-  })
-  const [allBooks, setAllBooks] = useState(() => {
-    // fetch all books
-  })
-  const [showOverlay, setShowOverlay] = useState(true);
-  const [detailsToShow, setDetailsToShow] = useState({ type: BOOK, details: {} })
+
+  const { data: bookData, loading: bookLoading } = useQuery(FETCH_ALL_BOOKS_QUERY);
+  const { data: authorData, loading: authorLoading } = useQuery(FETCH_ALL_AUTHORS_QUERY)
+
+  if (!bookLoading) console.log(bookData.books, "all authors");
+  if (!authorLoading) console.log(authorData.authors, "all books");
+  const [details, setDetails] = useState({})
+
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [detailsToShow, setDetailsToShow] = useState(BOOK)
   const [newBook, addNewBook] = useState({});
   const [newAuthor, addNewAuthor] = useState({});
 
@@ -23,6 +27,7 @@ export default function BookList(props) {
 
   }
 
+
   return (
     <div style={{
       fontFamily: "nunito, Arial",
@@ -30,6 +35,7 @@ export default function BookList(props) {
       {showOverlay &&
         <OverlayComponent
           detailsToShow={detailsToShow}
+          displayData={details}
           setOverlayVisible={setShowOverlay} />}
       <h1 style={{
         fontSize: "3rem",
@@ -65,33 +71,18 @@ export default function BookList(props) {
               padding: "0",
               margin: "0"
             }}>
-              <BookListItem
-                setDetailsToShow={setDetailsToShow}
-                setOverlayVisible={setShowOverlay}
-                author="Charles Dickens"
-                title="Oliver twist"
-                authorId="444"
-                bookId="something"
-              />
 
-              <BookListItem
-                setDetailsToShow={setDetailsToShow}
-                setOverlayVisible={setShowOverlay}
-                author="Charles Dickens"
-                title="Oliver twist"
-                authorId="444"
-                bookId="something"
-              />
-
-              <BookListItem
-                setDetailsToShow={setDetailsToShow}
-                setOverlayVisible={setShowOverlay}
-                author="Charles Dickens"
-                title="Oliver twist"
-                authorId="444"
-                bookId="something"
-              />
-
+              {(!bookLoading) ? bookData.books.map((book) => {
+                return <BookListItem
+                  setDetailsToShow={setDetailsToShow}
+                  setOverlayVisible={setShowOverlay}
+                  setDetails={setDetails}
+                  author={book.author.name}
+                  title={book.name}
+                  authorId={book.author.id}
+                  bookId={book.id}
+                />
+              }) : <span></span>}
             </ul>
           </div>
         </div>
@@ -113,19 +104,29 @@ export default function BookList(props) {
                 borderRadius: "4px",
                 margin: "0.3rem",
               }} />
-              <span style={{ fontWeight: "bold" }}>Title</span>
+              <span style={{ fontWeight: "bold" }}>Genre</span>
               <input type="text" style={{
                 padding: "4px",
                 borderRadius: "4px",
                 margin: "0.3rem",
               }}
               />
-              <span style={{ fontWeight: "bold" }}>Author</span>
-              <input type="text" style={{
-                padding: "4px",
-                borderRadius: "4px",
-                margin: "0.3rem",
-              }} />
+              <span style={{ fontWeight: "bold" }} >Author</span>
+              <select
+                onChange={() => { }}
+                style={{
+                  padding: "4px",
+                  borderRadius: "4px",
+                  margin: "0.3rem",
+                  width: "160px",
+                  border: "2px solid black"
+                }}>
+                <option value="idafdad">Author1</option>
+                <option value="iddfada">Author2</option>
+                <option value="dfadfad">Author3</option>
+                <option value="fadfda">Author4</option>
+              </select>
+
             </div>
             <div style={{
               width: "100%", textAlign: "center"
@@ -186,16 +187,26 @@ export default function BookList(props) {
 
 
 function BookListItem(props) {
+  // console.log(props, "propssssssssssssssssssss")
+
+  const { data: bookData, loading: bookLoading } = useQuery(FETCH_A_BOOK_QUERY, { variables: { id: props.bookId } })
+  const { data: authorData, loading: authorLoading } = useQuery(FETCH_AN_AUTHOR_QUERY, {
+    variables: { id: props.authorId },
+  })
+
+  console.log(props);
+  if (!bookLoading) console.log(bookData, "book data")
 
   const handleClickAuthor = (bookId) => {
-    //fetch author details
-    props.setDetailsToShow({ type: AUTHOR, details: {} });
+    props.setDetails({ ...authorData });
+    props.setDetailsToShow(AUTHOR);
     props.setOverlayVisible(true);
   }
 
   const handleClickBook = (bookId) => {
     //set book details 
-    props.setDetailsToShow({ type: BOOK, details: {} });
+    props.setDetails({ ...bookData })
+    props.setDetailsToShow(BOOK);
     props.setOverlayVisible(true)
   }
 
@@ -225,6 +236,7 @@ function BookListItem(props) {
         <span style={{ fontWeight: "bolder", fontSize: "1.2rem" }}>Author: </span>
         <span
           onClick={() => {
+
             handleClickAuthor(props.authorId);
           }}
           style={{
@@ -267,8 +279,13 @@ function OverlayComponent(props) {
       }}>
         <div style={{
         }}>
+          {/* 
+setDetailsToShow={setDetailsToShow}
+          displayData={getDetailsToDisplay}
+          setOverlayVisible={setShowOverlay} */}
+          {console.log(props.displayData.book.author, 'display data')}
           {props.detailsToShow === BOOK ?
-            (<ShowBookDetails />) : (<ShowAuthorDetails />)}
+            (<ShowBookDetails displayData={props.displayData} />) : (<ShowAuthorDetails displayData={props.displayData} />)}
           <div style={{
             width: "100%", textAlign: "center"
           }}>
@@ -290,48 +307,32 @@ function OverlayComponent(props) {
 
 
 function ShowAuthorDetails(props) {
+
   return (
     <div>
       <h2 style={{ color: "brown" }}>
         Author Details
           </h2>
-      <h4>Author Name : <span>Kiyosaki Nomunda</span></h4>
-      <h4>Author Age : <span>77</span></h4>
+      <h4>Author Name : <span>{props.displayData.author.name}</span></h4>
+      <h4>Author Age : <span>{props.displayData.author.age}</span></h4>
       <h4 style={{ color: "brown" }}>All Books By This Author </h4>
       <ul style={{
         listStyle: "none",
         margin: 0,
         padding: 0,
       }}>
-        <li style={{
-          width: "60%",
-          paddingTop: "15px",
-          margin: "7px auto",
-          border: "1px solid brown",
-          borderRadius: "1rem",
-          background: "#bbbbbb80",
-        }}><b>Book Title :</b> <span>Kiyosaki Nomunda</span> <p><b>Book Genre:</b> Kamondo</p>
-        </li>
-
-        <li style={{
-          width: "60%",
-          paddingTop: "15px",
-          margin: "7px auto",
-          border: "1px solid brown",
-          borderRadius: "1rem",
-          background: "#bbbbbb80",
-        }}><b>Book Title :</b> <span>Kiyosaki Nomunda</span> <p><b>Book Genre:</b> Kamondo</p>
-        </li>
-
-        <li style={{
-          width: "60%",
-          paddingTop: "15px",
-          margin: "7px auto",
-          border: "1px solid brown",
-          borderRadius: "1rem",
-          background: "#bbbbbb80",
-        }}><b>Book Title :</b> <span>Kiyosaki Nomunda</span> <p><b>Book Genre:</b> Kamondo</p>
-        </li>
+        {props.displayData.author.books.map((book) => {
+          return <li style={{
+            width: "60%",
+            paddingTop: "15px",
+            margin: "7px auto",
+            border: "1px solid brown",
+            borderRadius: "1rem",
+            background: "#bbbbbb80",
+          }}><b>Book Title :</b> <span>{book.name}</span>
+            <p><b>Book Genre:</b> {book.genre}</p>
+          </li>
+        })}
       </ul>
     </div>
   )
@@ -339,14 +340,15 @@ function ShowAuthorDetails(props) {
 
 
 function ShowBookDetails(props) {
+  console.log(props.displayData);
   return (
     <div>
       <h2 style={{ color: "brown" }}>
         Book Details
       </h2>
-      <h4>Book Name : <span>Kankuro Namasaki</span></h4>
-      <h4>Book Genre : <span>Fan fiction</span></h4>
-      <ShowAuthorDetails />
+      <h4>Book Name : <span>{props.displayData.book.name}</span></h4>
+      <h4>Book Genre : <span>{props.displayData.book.genre}</span></h4>
+      <ShowAuthorDetails displayData={props.displayData.book} />
     </div>
   )
 }
