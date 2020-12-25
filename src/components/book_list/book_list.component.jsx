@@ -1,6 +1,6 @@
-import { useQuery } from '@apollo/client'
+import { useQuery, useMutation } from '@apollo/client'
 import React, { useEffect, useState } from 'react'
-import { FETCH_ALL_BOOKS_QUERY, FETCH_ALL_AUTHORS_QUERY, FETCH_AN_AUTHOR_QUERY, FETCH_A_BOOK_QUERY } from '../../schemas/schema'
+import { FETCH_ALL_BOOKS_QUERY, FETCH_ALL_AUTHORS_QUERY, FETCH_AN_AUTHOR_QUERY, STORE_NEW_AUTHOR_MUTATION, STORE_NEW_BOOK_MUTATION, FETCH_A_BOOK_QUERY } from '../../schemas/schema'
 
 const BOOK = "book"
 const AUTHOR = "author"
@@ -9,7 +9,7 @@ export default function BookList(props) {
 
   const { data: bookData, loading: bookLoading } = useQuery(FETCH_ALL_BOOKS_QUERY);
   const { data: authorData, loading: authorLoading } = useQuery(FETCH_ALL_AUTHORS_QUERY)
-  if (!authorLoading) console.log(authorLoading, "aithro data")
+  // if (!authorLoading) console.log(authorLoading, "aithro data")
   const [details, setDetails] = useState({})
 
   const [showOverlay, setShowOverlay] = useState(false);
@@ -17,12 +17,18 @@ export default function BookList(props) {
   const [newBook, addNewBook] = useState({});
   const [newAuthor, addNewAuthor] = useState({});
 
+  const [createAuthor] = useMutation(STORE_NEW_AUTHOR_MUTATION,
+    { variables: { name: newAuthor.authorName, age: newAuthor.authorAge } })
+  const [createBook] = useMutation(STORE_NEW_BOOK_MUTATION,
+    { variables: { name: newBook.bookName, genre: newBook.bookGenre, authorId: newBook.authorId } })
 
-  const createNewBook = (title, genre, authorId) => {
-
+  const createNewBook = () => {
+    createBook()
+    console.log(newBook);
   }
-  const createNewAuthor = (name, age) => {
-
+  const createNewAuthor = () => {
+    createAuthor();
+    console.log(newAuthor);
   }
 
 
@@ -102,17 +108,21 @@ export default function BookList(props) {
                 padding: "4px",
                 borderRadius: "4px",
                 margin: "0.3rem",
-              }} />
+              }}
+                onChange={(e) => { addNewBook({ ...newBook, bookName: e.target.value }) }}
+              />
               <span style={{ fontWeight: "bold" }}>Genre</span>
               <input type="text" style={{
                 padding: "4px",
                 borderRadius: "4px",
                 margin: "0.3rem",
               }}
+                onChange={(e) => { addNewBook({ ...newBook, bookGenre: e.target.value }) }}
+
               />
               <span style={{ fontWeight: "bold" }} >Author</span>
               <select
-                onChange={() => { }}
+                onChange={(e) => { addNewBook({ ...newBook, authorId: e.target.value }) }}
                 style={{
                   padding: "4px",
                   borderRadius: "4px",
@@ -130,6 +140,7 @@ export default function BookList(props) {
               width: "100%", textAlign: "center"
             }}>
               <p
+                onClick={() => { createNewBook() }}
                 style={{
                   width: "30%",
                   background: "green",
@@ -155,18 +166,24 @@ export default function BookList(props) {
                 padding: "4px",
                 borderRadius: "4px",
                 margin: "0.3rem",
-              }} />
+              }}
+                onChange={(e) => { addNewAuthor({ ...newAuthor, authorName: e.target.value }) }}
+              />
               <span style={{ fontWeight: "bold" }}>Age</span>
               <input type="text" style={{
                 padding: "4px",
                 borderRadius: "4px",
                 margin: "0.3rem",
-              }} />
+              }}
+                onChange={(e) => { addNewAuthor({ ...newAuthor, authorAge: e.target.value }) }}
+
+              />
             </div>
             <div style={{
               width: "100%", textAlign: "center"
             }}>
               <p
+                onClick={() => { createNewAuthor() }}
                 style={{
                   width: "30%",
                   background: "green",

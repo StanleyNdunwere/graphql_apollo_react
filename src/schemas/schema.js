@@ -58,3 +58,21 @@ export const FETCH_A_BOOK_QUERY = gql`
       }
     }
   }`
+
+export const STORE_NEW_AUTHOR_MUTATION = gql`
+  mutation AddAuthor($name:String, $age:Int){
+    addAuthor(name: $name, age: $age){
+      name
+      age
+      id
+    }
+  }`
+
+export const STORE_NEW_BOOK_MUTATION = gql`
+  mutation AddBook($name: String, $genre: String, $authorId:ID) {
+    addBook(name: "The Owl", genre: "Action", authorId:"5fe431855d53e14028b13cd5"){
+      name
+      genre
+      id
+    }
+  }`
