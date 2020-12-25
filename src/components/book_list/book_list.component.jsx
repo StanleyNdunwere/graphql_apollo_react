@@ -10,8 +10,6 @@ export default function BookList(props) {
   const { data: bookData, loading: bookLoading } = useQuery(FETCH_ALL_BOOKS_QUERY);
   const { data: authorData, loading: authorLoading } = useQuery(FETCH_ALL_AUTHORS_QUERY)
 
-  if (!bookLoading) console.log(bookData.books, "all authors");
-  if (!authorLoading) console.log(authorData.authors, "all books");
   const [details, setDetails] = useState({})
 
   const [showOverlay, setShowOverlay] = useState(false);
@@ -187,15 +185,12 @@ export default function BookList(props) {
 
 
 function BookListItem(props) {
-  // console.log(props, "propssssssssssssssssssss")
 
   const { data: bookData, loading: bookLoading } = useQuery(FETCH_A_BOOK_QUERY, { variables: { id: props.bookId } })
   const { data: authorData, loading: authorLoading } = useQuery(FETCH_AN_AUTHOR_QUERY, {
     variables: { id: props.authorId },
   })
 
-  console.log(props);
-  if (!bookLoading) console.log(bookData, "book data")
 
   const handleClickAuthor = (bookId) => {
     props.setDetails({ ...authorData });
@@ -279,11 +274,6 @@ function OverlayComponent(props) {
       }}>
         <div style={{
         }}>
-          {/* 
-setDetailsToShow={setDetailsToShow}
-          displayData={getDetailsToDisplay}
-          setOverlayVisible={setShowOverlay} */}
-          {console.log(props.displayData.book.author, 'display data')}
           {props.detailsToShow === BOOK ?
             (<ShowBookDetails displayData={props.displayData} />) : (<ShowAuthorDetails displayData={props.displayData} />)}
           <div style={{
@@ -340,7 +330,6 @@ function ShowAuthorDetails(props) {
 
 
 function ShowBookDetails(props) {
-  console.log(props.displayData);
   return (
     <div>
       <h2 style={{ color: "brown" }}>
