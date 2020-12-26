@@ -1,4 +1,4 @@
-import { useQuery, gql } from '@apollo/client'
+import { gql } from '@apollo/client'
 
 export const FETCH_ALL_BOOKS_QUERY = gql`
   {
@@ -76,3 +76,4 @@ mutation AddBook($name:String!, $genre:String!, $authorId:ID!){
     genre
   }
 }`
+
